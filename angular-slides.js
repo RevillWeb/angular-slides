@@ -11,7 +11,7 @@ angular.module('ngSlides').provider('slideService', function() {
     this.setSnapPercent = function(percent) {
         this.snapPercent = percent;
     };
-    this.$get = function ($rootScope) {
+    this.$get = ['$rootScope', function($rootScope) {
         var self = this;
         $rootScope.$watch(function(){
             return self.current;
@@ -32,7 +32,7 @@ angular.module('ngSlides').provider('slideService', function() {
                 return self.snapPercent;
             }
         }
-    };
+    }];
 });
 
 angular.module('ngSlides').directive('slideFrame', ['slideService', '$window', '$timeout', '$rootScope', function(slideService, $window, $timeout, $rootScope){
@@ -40,15 +40,15 @@ angular.module('ngSlides').directive('slideFrame', ['slideService', '$window', '
         restrict: 'A',
         replace: true,
         template: '<div class="slide-frame"><div class="slide-container"><div class="slide" ng-repeat="slide in slides" id="{{slide.id}}" slide="slide">{{one.title}}</div></div></div>',
-        link: function(scope, element) {
-            scope.slides = slideService.getSlides();
-            var $frame = element;
-            var $container = angular.element(element[0].children[0]);
+        link: function($scope, $element) {
+            $scope.slides = slideService.getSlides();
+            var $frame = $element;
+            var $container = angular.element($element[0].children[0]);
             var $width = 0;
             var $height = 0;
             var $childCount = 0;
             var $currentSlide = 0;
-            scope.set = function(width, height) {
+            $scope.set = function(width, height) {
                 $width = width;
                 $height = height;
                 $childCount = $container.children().length;
@@ -63,10 +63,10 @@ angular.module('ngSlides').directive('slideFrame', ['slideService', '$window', '
                 });
             };
             $timeout(function(){
-                scope.set($window.outerWidth, $window.outerHeight);
+                $scope.set($window.outerWidth, $window.outerHeight);
             });
             angular.element($window).bind('resize', function() {
-                scope.set($window.outerWidth, $window.outerHeight);
+                $scope.set($window.outerWidth, $window.outerHeight);
                 $rootScope.$emit('$windowResized');
             });
             var timer = null;
@@ -94,7 +94,7 @@ angular.module('ngSlides').directive('slideFrame', ['slideService', '$window', '
                 //Find the slide index
                 var index = null;
                 var cont = true;
-                angular.forEach(scope.slides, function(slide, idx){
+                angular.forEach($scope.slides, function(slide, idx){
                     if (cont) {
                         if (slideId == slide.id) {
                             index = idx;
@@ -114,18 +114,18 @@ angular.module('ngSlides').directive('slideNav', ['slideService', '$rootScope', 
         restrict: 'E',
         replace: true,
         template: '<nav class="slide-nav"><ul><li ng-style="{\'width\': (width) + \'px\'}" ng-repeat="slide in slides track by slide.id" ng-class="{\'active\': (current.id == slide.id)}"><a href="#" ng-click="goToSlide(slide.id)">{{slide.title}}</a></li></ul></nav>',
-        link: function(scope) {
-            scope.slides = slideService.getSlides();
-            scope.width = Math.floor($window.innerWidth / scope.slides.length);
-            scope.current = slideService.getCurrent();
+        link: function($scope) {
+            $scope.slides = slideService.getSlides();
+            $scope.width = Math.floor($window.innerWidth / $scope.slides.length);
+            $scope.current = slideService.getCurrent();
             $rootScope.$on('$slideChanged', function(){
-                scope.current = slideService.getCurrent();
+                $scope.current = slideService.getCurrent();
             });
             $rootScope.$on('$windowResized', function(){
-                scope.width = Math.floor($window.innerWidth / scope.slides.length);
-                scope.$apply()
+                $scope.width = Math.floor($window.innerWidth / $scope.slides.length);
+                $scope.$apply();
             });
-            scope.goToSlide = function(slideId) {
+            $scope.goToSlide = function(slideId) {
                 $rootScope.$emit('$goToSlide', slideId);
             };
         }
