@@ -35,7 +35,7 @@ angular.module('ngSlides').provider('slideService', function() {
     };
 });
 
-angular.module('ngSlides').directive('slideFrame', function(slideService, $window, $timeout, $rootScope){
+angular.module('ngSlides').directive('slideFrame', ['slideService', '$window', '$timeout', '$rootScope', function(slideService, $window, $timeout, $rootScope){
     return {
         restrict: 'A',
         replace: true,
@@ -107,9 +107,9 @@ angular.module('ngSlides').directive('slideFrame', function(slideService, $windo
             });
         }
     };
-});
+}]);
 
-angular.module('ngSlides').directive('slideNav', function(slideService, $rootScope, $window){
+angular.module('ngSlides').directive('slideNav', ['slideService', '$rootScope', '$window', function(slideService, $rootScope, $window){
     return {
         restrict: 'E',
         replace: true,
@@ -130,9 +130,9 @@ angular.module('ngSlides').directive('slideNav', function(slideService, $rootSco
             };
         }
     };
-});
+}]);
 
-angular.module('ngSlides').directive('slide', function($controller, $log, $http, $templateCache, $compile, $rootScope, $q){
+angular.module('ngSlides').directive('slide', ['$controller', '$log', '$http', '$templateCache', '$compile', '$rootScope', '$q', function($controller, $log, $http, $templateCache, $compile, $rootScope, $q){
     return {
         restrict: 'A',
         scope: {
@@ -163,4 +163,4 @@ angular.module('ngSlides').directive('slide', function($controller, $log, $http,
             });
         }
     };
-});
+}]);
